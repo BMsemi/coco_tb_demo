@@ -1,5 +1,8 @@
 # Neuromorphic X1 — cocotb Simulation Demo
 
+## 📺 Video tutorial
+[Watch on YouTube](https://www.youtube.com/watch?v=AhED7Xki4TE) — end-to-end walkthrough of the same flow shown in this README.
+
 This repository demonstrates how to integrate and simulate the **NEUROMORPHIC_X1** IP using a **Wishbone** slave interface and a **cocotb** testbench. The example drives multiple write/read scenarios, generates a VCD waveform file, and shows how to inspect signals in GTKWave.
 
 ## Repository layout
