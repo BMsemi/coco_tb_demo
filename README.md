@@ -10,7 +10,7 @@ This repository demonstrates how to integrate and simulate the **NEUROMORPHIC_X1
 ```
 .
 ├─ Makefile                         # cocotb makefile to build & run the test
-├─ test_ReRAM_Wishbone_Interface.py # cocotb testbench (multiple scenarios)
+├─ testbench-test_ReRAM_Wishbone_Interface.py # cocotb testbench (multiple scenarios)
 ├─ ReRAM_Wishbone_Interface.v       # DUT: top + Wishbone datapath/glue
 ├─ wishbone_slave_interface.v       # Wishbone protocol handshake (stb/cyc/we/ack)
 ├─ NEUROMORPHIC_X1.v                # Neuromorphic X1 IP wrapper/top integration
@@ -37,9 +37,6 @@ From the repo root:
 # Build & run with default simulator selected in Makefile
 make
 
-# Or explicitly choose a simulator
-make SIM=icarus
-make SIM=questa
 ```
 
 **Outputs**
@@ -67,26 +64,23 @@ Writes compose a 32‑bit word (packing row/col/data), drive `stb/cyc/we/sel/adr
 ## RTL overview
 
 - **ReRAM_Wishbone_Interface.v** — Connects the Wishbone slave to the ReRAM/neuromorphic datapath; decodes packed row/col/data on writes and returns composite data on reads.
-- **wishbone_slave_interface.v** — Implements Wishbone B4‑style slave signaling (`stb`, `cyc`, `we`, `sel`, `ack`), including ready/ack handling.
+- **wishbone_slave_interface.v** — Implements Wishbone slave signaling (`stb`, `cyc`, `we`, `sel`, `ack`), including ready/ack handling.
 - **NEUROMORPHIC_X1.v / NEUROMORPHIC_X1_macro.v** — Wrapper(s) for the Neuromorphic X1 IP; the macro variant is handy for hardened macro flows.
 
 ## Makefile notes
 
-Typical cocotb variables (your Makefile already includes them):
-```make
-# SIM ?= icarus | questa | verilator
-# TOPLEVEL_LANG ?= verilog
-# VERILOG_SOURCES += $(PWD)/ReRAM_Wishbone_Interface.v \
-#                    $(PWD)/wishbone_slave_interface.v \
-#                    $(PWD)/NEUROMORPHIC_X1.v \
-#                    $(PWD)/NEUROMORPHIC_X1_macro.v
-# TOPLEVEL = ReRAM_Wishbone_Interface
-# MODULE   = test_ReRAM_Wishbone_Interface
+MODULE=testbench.test_ReRAM_Wishbone_Interface
+TOPLEVEL=ReRAM_Wishbone_Interface
+VERILOG_SOURCES=./NEUROMORPHIC_X1.v ./NEUROMORPHIC_X1_macro.v ./wishbone_slave_interface.v ./ReRAM_Wishbone_Interface.v
+SIM=icarus
+
+include $(shell cocotb-config --makefiles)/Makefile.sim
+
+
 ```
 Run with:
 ```bash
 make            # default SIM
-make SIM=questa # override
 ```
 
 ## Viewing waveforms (GTKWave)
@@ -107,9 +101,3 @@ make SIM=questa # override
 - **No `sim.vcd`:** ensure your simulator is supported and Makefile includes cocotb’s `Makefile.sim`.
 - **No `ack`:** verify the Wishbone slave logic and that the DUT asserts `ack` only when ready.
 - **All zeros on read:** confirm read‑path muxing and `we` polarity; verify `sel` mask and address decode.
-
-## Adapting to your design
-
-- Replace/extend `ReRAM_Wishbone_Interface.v` for your memory map/commands.
-- Keep the cocotb structure (clock, reset, transactions, checks).
-- Add Python assertions to turn the demo into a regression test.
