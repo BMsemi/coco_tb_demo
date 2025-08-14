@@ -76,7 +76,9 @@ VERILOG_SOURCES=./NEUROMORPHIC_X1.v ./NEUROMORPHIC_X1_macro.v ./wishbone_slave_i
 SIM=icarus
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
+```
 Run with:
+
 ```bash
 make            # default SIM
 ```
